@@ -6,6 +6,8 @@ import { connectToDB, uploadDirectory } from './config/app';
 // Route imports
 import PhotoRouter from './resources/photo/photo.router';
 
+require('dotenv').config();
+
 // Initialize express app
 const app = express();
 
@@ -22,11 +24,18 @@ app.use(morgan('dev'));
 // Routes
 app.use('/api/fileUpload', PhotoRouter);
 
-app.listen(5555, async () => {
+// FGunction to start the server
+const startServer = async () => {
   try {
+    // Connect to db
     await connectToDB();
-    console.log('Server is live and listening on : 5555');
+    const port = process.env.PORT || 5555;
+    app.listen(port, () => {
+      console.log(`Server is live and listening on ${port}`);
+    });
   } catch (error) {
-    console.error('Error connecting to database');
+    console.log('Error connecting to server');
   }
-});
+};
+// Start the server
+startServer();

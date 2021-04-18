@@ -17,7 +17,7 @@ const s3 = new S3({
 });
 
 // Upload a file to S3
-function uploadFileToS3(file) {
+export function uploadFileToS3(file) {
   // Read the content of the passed file using filestream
   const fileStream = fs.createReadStream(file.path);
   const uploadParams = {
@@ -30,4 +30,11 @@ function uploadFileToS3(file) {
   return s3.upload(uploadParams).promise();
 }
 // Download a file from S3
-export default uploadFileToS3;
+export function getFileFromS3byKey(key) {
+  const downloadParams = {
+    Bucket: bucketName,
+    Key: key,
+  };
+
+  return s3.getObject(downloadParams).createReadStream();
+}

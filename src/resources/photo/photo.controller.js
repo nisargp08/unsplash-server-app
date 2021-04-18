@@ -1,5 +1,5 @@
 import { code, upload } from '../../config/app';
-import uploadFileToS3 from '../../config/aws.s3';
+import { uploadFileToS3, getFileFromS3byKey } from '../../config/aws.s3';
 import PhotoModel from './photo.model';
 
 function getErrorMessage(res, statusCode, error) {
@@ -7,7 +7,7 @@ function getErrorMessage(res, statusCode, error) {
   res.status(statusCode).json(`Error occured : ${error}`);
 }
 
-const insertPhoto = (req, res) => {
+export const insertPhoto = (req, res) => {
   // Use multer's upload function to temporarily store file on the server
   upload(req, res, (err) => {
     if (err) {
@@ -36,4 +36,38 @@ const insertPhoto = (req, res) => {
     })();
   });
 };
-export default insertPhoto;
+export const getOnePhoto = async (req, res) => {
+  try {
+    // Find the record from the database using the provided id
+    const doc = await PhotoModel.findById(req.params.id);
+    // If doc found then
+    if (doc) {
+      // Find the file from s3 bucket using doc key
+      const file = await getFileFromS3byKey(doc.aws_key);
+      if (file) {
+        /* as received data 'file' is an open filestream we can pipe
+        that stream to response object back to client */
+        file.pipe(res.status(code.ok));
+      }
+    }
+  } catch (error) {
+    getErrorMessage(res, code.badRequest, error);
+  }
+};
+export const getAllPhotos = async (req, res) => {
+  try {
+    // Get all docs from database
+    const docs = await PhotoModel.find();
+    if (docs) {
+      // Get file id's of the files in db and store it in the array
+      const fileIds = docs.map((file) => ({
+        // eslint-disable-next-line no-underscore-dangle
+        id: file._id,
+        label: file.label,
+      }));
+      res.status(code.ok).json(fileIds);
+    }
+  } catch (error) {
+    getErrorMessage(res, code.badRequest, error);
+  }
+};
