@@ -23,6 +23,33 @@ app.use(morgan('dev'));
 
 // Routes
 app.use('/api/fileUpload', PhotoRouter);
+// When main server url is requested - display available paths
+app.get('*', (req, res) => {
+  const availableRoutes = [
+    {
+      // To get a single file
+      methods: 'GET',
+      route: '/api/file_upload/:id',
+    },
+    {
+      // To get all files
+      methods: 'GET',
+      route: '/api/file_upload/',
+    },
+    {
+      // To upload a image
+      method: 'POST',
+      route: '/api/file_upload/',
+    },
+    {
+      // To Delete a image
+      method: 'DELETE',
+      route: '/api/file_upload/:id',
+    },
+  ];
+  res.header('Content-Type', 'application/json');
+  res.send(JSON.stringify(availableRoutes, null, 4));
+});
 
 // FGunction to start the server
 const startServer = async () => {
@@ -30,8 +57,8 @@ const startServer = async () => {
     // Connect to db
     await connectToDB();
     const port = process.env.PORT || 5555;
-    app.listen(port, () => {
-      console.log(`Server is live and listening on ${port}`);
+    const listener = app.listen(port, () => {
+      console.log(`Server is live and listening on ${listener.address().port}`);
     });
   } catch (error) {
     console.log('Error connecting to server');
