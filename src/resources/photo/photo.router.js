@@ -1,5 +1,7 @@
 import { Router } from 'express';
-import { insertPhoto, getOnePhoto, getAllPhotos } from './photo.controller';
+import {
+  insertPhoto, getOnePhoto, getAllPhotos, deleteOnePhoto,
+} from './photo.controller';
 
 const router = Router();
 
@@ -8,6 +10,7 @@ router.route('/')
   .post(insertPhoto);
 
 router.route('/:id')
-  .get(getOnePhoto);
+  .get(getOnePhoto)
+  .delete(deleteOnePhoto);
 
 export default router;

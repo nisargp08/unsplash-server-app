@@ -30,11 +30,20 @@ export function uploadFileToS3(file) {
   return s3.upload(uploadParams).promise();
 }
 // Download a file from S3
-export function getFileFromS3byKey(key) {
+export function getFileFromS3ByKey(key) {
   const downloadParams = {
     Bucket: bucketName,
     Key: key,
   };
 
   return s3.getObject(downloadParams).createReadStream();
+}
+// Delete a file from S3
+export function deleteFileFromS3ByKey(key) {
+  const deleteParams = {
+    Bucket: bucketName,
+    Key: key,
+  };
+
+  return s3.deleteObject(deleteParams).promise();
 }

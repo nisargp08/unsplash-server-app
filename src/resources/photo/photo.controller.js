@@ -1,5 +1,5 @@
 import { code, upload } from '../../config/app';
-import { uploadFileToS3, getFileFromS3byKey } from '../../config/aws.s3';
+import { uploadFileToS3, getFileFromS3ByKey, deleteFileFromS3ByKey } from '../../config/aws.s3';
 import PhotoModel from './photo.model';
 
 function getErrorMessage(res, statusCode, error) {
@@ -43,7 +43,7 @@ export const getOnePhoto = async (req, res) => {
     // If doc found then
     if (doc) {
       // Find the file from s3 bucket using doc key
-      const file = await getFileFromS3byKey(doc.aws_key);
+      const file = await getFileFromS3ByKey(doc.aws_key);
       if (file) {
         /* as received data 'file' is an open filestream we can pipe
         that stream to response object back to client */
@@ -66,6 +66,25 @@ export const getAllPhotos = async (req, res) => {
         label: file.label,
       }));
       res.status(code.ok).json(fileIds);
+    }
+  } catch (error) {
+    getErrorMessage(res, code.badRequest, error);
+  }
+};
+export const deleteOnePhoto = async (req, res) => {
+  try {
+    // Get file key from req params
+    const fileKey = req.params.id;
+    // Get aws_key from the id
+    const doc = await PhotoModel.findById(fileKey);
+    // If any record found then
+    if (fileKey) {
+      // Delete from s3 bucket first
+      await deleteFileFromS3ByKey(doc.aws_key);
+      // Then delete from database
+      const deletedFile = await PhotoModel.findByIdAndDelete(fileKey);
+      // Return the statuscode and send the delete object
+      res.status(code.ok).json(deletedFile);
     }
   } catch (error) {
     getErrorMessage(res, code.badRequest, error);
