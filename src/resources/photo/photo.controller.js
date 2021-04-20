@@ -1,7 +1,11 @@
+import fs from 'fs';
+import util from 'util';
 import { code, upload } from '../../config/app';
 import { uploadFileToS3, getFileFromS3ByKey, deleteFileFromS3ByKey } from '../../config/aws.s3';
 import PhotoModel from './photo.model';
 
+// Create a unlink function that returns a promise instead of callback
+const unlinkFile = util.promisify(fs.unlink);
 function getErrorMessage(res, statusCode, error) {
   console.log(error);
   res.status(statusCode).json(`Error occured : ${error}`);
@@ -19,6 +23,8 @@ export const insertPhoto = (req, res) => {
     (async () => {
       try {
         const result = await uploadFileToS3(fileToUpload);
+        // Remove the file from system storage
+        await unlinkFile(fileToUpload.path);
         // Add the file to mongodb so that we can use it to fetch it at a later date
         const doc = await PhotoModel.create({
           label: req.body.label,
