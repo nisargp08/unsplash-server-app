@@ -1,7 +1,7 @@
 {
-  "name": "node.js-starter-template",
+  "name": "np-unsplash-server-app",
   "version": "1.0.0",
-  "description": "A node js starter template",
+  "description": "A node js server app that serves and stores images for the client by the same name",
   "main": "index.js",
   "scripts": {
     "build": "babel src --out-dir dist",
@@ -14,6 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.888.0",
+    "axios": "^0.21.1",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
