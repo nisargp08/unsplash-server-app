@@ -5,6 +5,7 @@ import cors from 'cors';
 import { connectToDB, uploadDirectory } from './config/app';
 // Route imports
 import PhotoRouter from './resources/photo/photo.router';
+import { fetchImageFromUrl } from './resources/photo/photo.controller';
 
 require('dotenv').config();
 
@@ -23,6 +24,7 @@ app.use(morgan('dev'));
 
 // Routes
 app.use('/api/fileUpload', PhotoRouter);
+app.get('/api/urlFetch', fetchImageFromUrl);
 // When main server url is requested - display available paths
 app.get('*', (req, res) => {
   const availableRoutes = [

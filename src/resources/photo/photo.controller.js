@@ -1,7 +1,12 @@
 import fs from 'fs';
 import util from 'util';
+import axios from 'axios';
 import { code, upload } from '../../config/app';
-import { uploadFileToS3, getFileFromS3ByKey, deleteFileFromS3ByKey } from '../../config/aws.s3';
+import {
+  uploadFileToS3,
+  getFileFromS3ByKey,
+  deleteFileFromS3ByKey,
+} from '../../config/aws.s3';
 import PhotoModel from './photo.model';
 
 // Create a unlink function that returns a promise instead of callback
@@ -91,6 +96,31 @@ export const deleteOnePhoto = async (req, res) => {
       const deletedFile = await PhotoModel.findByIdAndDelete(fileKey);
       // Return the statuscode and send the delete object
       res.status(code.ok).json(deletedFile);
+    }
+  } catch (error) {
+    getErrorMessage(res, code.badRequest, error);
+  }
+};
+export const fetchImageFromUrl = async (req, res) => {
+  try {
+    // Get the url of from where we need to get an image
+    const { url } = req.query;
+    // Request to the url to get the image stream
+    const response = await axios.get(url, {
+      // ResponseType - 'stream' will return a readable stream
+      responseType: 'stream',
+    });
+    // Validate if response contains an image
+    if (
+      response.headers['content-type'].match('image/*')
+      && response.status === 200
+    ) {
+      // Setting header of the response
+      res.set('Content-Type', response.headers['content-type']);
+      // As response.data is a readable stream we can pipe it to response object
+      response.data.pipe(res);
+    } else {
+      throw new Error('Invalid file link. Please try a different link...');
     }
   } catch (error) {
     getErrorMessage(res, code.badRequest, error);
