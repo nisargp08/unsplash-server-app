@@ -23,7 +23,8 @@ export function uploadFileToS3(file) {
   const uploadParams = {
     Bucket: bucketName,
     Body: fileStream,
-    Key: file.filename.split('.')[0],
+    Key: file.filename,
+    // Key: file.filename.split('.')[0],
     ContentType: file.mimetype,
   };
 
