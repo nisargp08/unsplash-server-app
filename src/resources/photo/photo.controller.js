@@ -56,6 +56,8 @@ export const getOnePhoto = async (req, res) => {
       // Find the file from s3 bucket using doc key
       const file = await getFileFromS3ByKey(doc.aws_key);
       if (file) {
+        // Set header to image
+        res.set('Content-Type', 'image/jpeg');
         /* as received data 'file' is an open filestream we can pipe
         that stream to response object back to client */
         file.pipe(res.status(code.ok));
